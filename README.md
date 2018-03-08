@@ -6,11 +6,11 @@ Unity 2017 2.0f or above
 VRTK plugin 3.2
 
 #### How to use:
-1. Attach controller_fly.cs onto one of your VRTK controller script alias.
+1. Attach controller_fly.cs onto one of your VRTK controller script alias (either left or right hand).
 
-2. Link CameraRig object and actual pointing controller object to the script.
+2. On your controller script alias, choose if you are using "simulator or not", and choose if you are using "lefthand or not".
 
-3. Link PlayArea script alias to the script
+3. Link PlayArea script alias object to the script.
 
 4. On your PlayArea script alias, attach Collision_detect.cs onto it.
 
