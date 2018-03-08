@@ -46,6 +46,8 @@ namespace VRTK{
 		//collision detect
 		private Collision_detect collision_detect;
 		private Vector3 bouncing_velocity;
+		private Vector3 bodyPositionColliding;
+		private bool departureFromLanding = false;
 
 		//floating effect 
 		public bool floating_effect = true;
@@ -84,8 +86,11 @@ namespace VRTK{
 			if (collision_detection) {
 				if (collision_detect.colliding) {
 					onObject = true;
+					bodyPositionColliding = CameraRig.transform.position;
+
 				} else if (!collision_detect.colliding) {
 					onObject = false;
+					departureFromLanding = false;
 				}
 			} else {
 				onObject = false;
@@ -100,15 +105,22 @@ namespace VRTK{
 				CameraRig.transform.position += fly_velocity;
 
 				if (onObject) {
-					CameraRig.transform.position = collision_detect.colliding_point.position - facing_direction * collision_bouncing_factor;
-					fly_velocity = Vector3.zero;
+					CameraRig.transform.position = bodyPositionColliding;
+					if (departureFromLanding) {
+						CameraRig.transform.position += fly_velocity;
+					}
+					//CameraRig.transform.position = collision_detect.colliding_point.position - facing_direction * collision_bouncing_factor;
+					//fly_velocity = Vector3.zero;
 				} 
+					
 				fly_velocity *= 0.5f; //not zeros but decays velocity, to leave some inertia
 				fly_acceleration = Vector3.zero; //zeros acceleration
 			} else {
 				if (gravity) {
 					if (onObject) {
+						CameraRig.transform.position = bodyPositionColliding;
 						fall_velocity *= 0.0f;
+						departureFromLanding = true;
 					}
 					if (!onGround && !onObject) {
 						reference_landing_point = new Vector3 (CameraRig.transform.position.x, landing_height, CameraRig.transform.position.z);
