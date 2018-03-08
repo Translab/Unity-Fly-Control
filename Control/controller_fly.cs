@@ -13,7 +13,7 @@ namespace VRTK{
 		[Tooltip("Switch between Simulator and SteamVR CameraRigs")]
 		public bool UseSimulator = true;
 		[Tooltip("true if this script is on left hand, then your pointing hand is left controller, if on right hand then false")]
-		public bool isThisLeftHand = true;
+		public bool ThisisLeftHand = true;
  		private GameObject CameraRig;
 		private GameObject Pointing_hand; //link your controller here as your pointing reference, or use your headset as facing reference
 
@@ -73,14 +73,14 @@ namespace VRTK{
 
 			if (UseSimulator) {
 				CameraRig = GameObject.Find ("[VRTK_SDKManager]/SDKSetups/Simulator/VRSimulatorCameraRig");
-				if (isThisLeftHand) {
+				if (ThisisLeftHand) {
 					Pointing_hand = GameObject.Find ("[VRTK_SDKManager]/SDKSetups/Simulator/VRSimulatorCameraRig/LeftHand");
 				} else {
 					Pointing_hand = GameObject.Find ("[VRTK_SDKManager]/SDKSetups/Simulator/VRSimulatorCameraRig/RightHand");
 				}
 			} else {
 				CameraRig = GameObject.Find ("[VRTK_SDKManager]/SDKSetups/SteamVR/[CameraRig]");
-				if (isThisLeftHand) {
+				if (ThisisLeftHand) {
 					Pointing_hand = GameObject.Find ("[VRTK_SDKManager]/SDKSetups/SteamVR/[CameraRig]/Controller (left)");
 				} else {
 					Pointing_hand = GameObject.Find ("[VRTK_SDKManager]/SDKSetups/SteamVR/[CameraRig]/Controller (right)");
