@@ -15,8 +15,9 @@ namespace VRTK{
 
 		//flying param
 		public float fly_speed = 1.0f; //fly speed by default 1.0
-		private Vector3 fly_velocity;
 		public Vector3 facing_direction; //just for reference, showing where your pointing object is facing
+
+		private Vector3 fly_velocity;
 		private Vector3 fly_acceleration;
 		private float fly_acce_max = 0.2f;
 		private float speed_compensation = 0.1f;
@@ -24,13 +25,17 @@ namespace VRTK{
 
 		//Collision Detect
 		public bool collision_detection = true; //need to add a "VRTK_HeadsetCollision" script in your playarea object
-		public float collision_bouncing_factor = 0.2f; //determines how far you get bounce back when you hit something
 		public GameObject playarea; //link your playarea object here
+
+		private Collision_detect collision_detect;
+		private Vector3 bodyPositionColliding; //temporal vector3 to record the body position of the colliding moment
+		private bool departureFromLanding = false; 
 
 		//landing height
 		public bool gravity = true; //check this if you want gravity to return back to the middle plane / terrain
 		public float landing_height = 0.0f; //typically 0 or matches with terrain / plane height
 		public float landing_detection_threshold = 0.1f; //tolerence of landing detection, can be much less if your gravity factor isn't very high
+
 		private Vector3 reference_landing_point;
 		private float reference_distance; //distance between flying body and reference plane
 		private Vector3 fall_velocity;
@@ -39,20 +44,16 @@ namespace VRTK{
 		//determines how much your gravity acceleration can be, 
 		//if your acceleration is too high, you may not land properly
 		public float gravity_factor = 0.05f; 
+
 		private float grav_acce_max;
 		private bool onGround = true;
 		private bool onObject = false;
-
-		//collision detect
-		private Collision_detect collision_detect;
-		private Vector3 bouncing_velocity;
-		private Vector3 bodyPositionColliding;
-		private bool departureFromLanding = false;
 
 		//floating effect 
 		public bool floating_effect = true;
 		public float floating_factor = 0.003f; //amplitude of floating
 		public float floating_intensity = 1.0f; //floating frequency
+
 		private Vector3 floating_temp_pos = new Vector3(0,0,0);
 
 		void Start(){
@@ -109,7 +110,6 @@ namespace VRTK{
 					if (departureFromLanding) {
 						CameraRig.transform.position += fly_velocity;
 					}
-					//CameraRig.transform.position = collision_detect.colliding_point.position - facing_direction * collision_bouncing_factor;
 					//fly_velocity = Vector3.zero;
 				} 
 					

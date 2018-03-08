@@ -9,23 +9,18 @@ namespace VRTK{
 
 	public class Collision_detect : MonoBehaviour {
 
-		public bool colliding = false;
-		public Transform colliding_point;
+		public bool colliding = false; //don't need to touch, for read by controller fly script
+		public Transform colliding_point; //not used, for debug use
+		public float userHeight = 1.6f; //determines the size of the collider
 
 		// Use this for initialization
 		void Start () {
+			//get the collision event handler from the headset collision script
 			GetComponent<VRTK_HeadsetCollision> ().HeadsetCollisionDetect += new HeadsetCollisionEventHandler (HeadsetCollisionDetect);
 			GetComponent<VRTK_HeadsetCollision> ().HeadsetCollisionEnded += new HeadsetCollisionEventHandler (HeadsetCollisionEnded);
 
-			//if use body physics, need to turn off VRTK body collisions and make floorHeightTolerance high enough not to trigger snap to floor
-			//GetComponent<VRTK_BodyPhysics> ().enableBodyCollisions = false;
-			//GetComponent<VRTK_BodyPhysics> ().floorHeightTolerance = 999.0f;
-			//otherwise, will conflict with flying system
-
-			//can also use body physics's collider to check colliding
-			//but may have some bugs
-			//GetComponent<VRTK_BodyPhysics> ().StartColliding += new BodyPhysicsEventHandler (StartColliding);
-			//GetComponent<VRTK_BodyPhysics> ().StopColliding += new BodyPhysicsEventHandler (StopColliding);
+			//make the headset collider our main collider, and increase its size to approximately height of human
+			GetComponent<VRTK_HeadsetCollision> ().colliderRadius = userHeight / 2.0f;
 		}
 		
 		// Update is called once per frame
@@ -42,12 +37,6 @@ namespace VRTK{
 		private void HeadsetCollisionEnded(object sender, HeadsetCollisionEventArgs e){
 			colliding = false;
 		}
-
-
-		//ignore this part
-		//		private void StopColliding(object sender, BodyPhysicsEventArgs e){
-		//			//colliding = false;
-		//		}
 
 	}
 }
