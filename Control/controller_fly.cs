@@ -10,13 +10,18 @@ namespace VRTK{
 	public class controller_fly : MonoBehaviour{
 
 		//gameobject reference 
- 		public GameObject CameraRig;
-		public GameObject Pointing_hand; //link your controller here as your pointing reference, or use your headset as facing reference
+		[Tooltip("Switch between Simulator and SteamVR CameraRigs")]
+		public bool UseSimulator = true;
+		[Tooltip("true if this script is on left hand, then your pointing hand is left controller, if on right hand then false")]
+		public bool isThisLeftHand = true;
+ 		private GameObject CameraRig;
+		private GameObject Pointing_hand; //link your controller here as your pointing reference, or use your headset as facing reference
 
 		//flying param
+		[Tooltip("speed of fly")]
 		public float fly_speed = 1.0f; //fly speed by default 1.0
-		public Vector3 facing_direction; //just for reference, showing where your pointing object is facing
 
+		private Vector3 facing_direction; //just for reference, showing where your pointing object is facing
 		private Vector3 fly_velocity;
 		private Vector3 fly_acceleration;
 		private float fly_acce_max = 0.2f;
@@ -24,16 +29,23 @@ namespace VRTK{
 		private bool flying = false;
 
 		//Collision Detect
-		public bool collision_detection = true; //need to add a "VRTK_HeadsetCollision" script in your playarea object
+		[Tooltip("link your playarea object here, drag and drop from your Hierarchy list into this blank")]
 		public GameObject playarea; //link your playarea object here
+		[Tooltip("if true, you need to have 'collision_detect' script and also 'VRTK_HeadsetCollision' script attached to PlayArea")]
+		public bool collision_detection = true; //need to add a "VRTK_HeadsetCollision" script in your playarea object
 
 		private Collision_detect collision_detect;
 		private Vector3 bodyPositionColliding; //temporal vector3 to record the body position of the colliding moment
 		private bool departureFromLanding = false; 
 
 		//landing height
+		[Tooltip("true if you need gravity, it will let you fall onto objects")]
 		public bool gravity = true; //check this if you want gravity to return back to the middle plane / terrain
+		[Tooltip("a landing height is a height that you will return to, even if there is no actual terrain, typically 0 or mataches with the terrain / plane height")]
 		public float landing_height = 0.0f; //typically 0 or matches with terrain / plane height
+		[Tooltip("determines how much your gravity acceleration is, if too high, you may not land properly")]
+		public float gravity_factor = 0.05f; 
+		[Tooltip("tolerence of landing detection, can be less if your gravity isn't very strong")]
 		public float landing_detection_threshold = 0.1f; //tolerence of landing detection, can be much less if your gravity factor isn't very high
 
 		private Vector3 reference_landing_point;
@@ -41,17 +53,16 @@ namespace VRTK{
 		private Vector3 fall_velocity;
 		private Vector3 gravity_acceleration;
 
-		//determines how much your gravity acceleration can be, 
-		//if your acceleration is too high, you may not land properly
-		public float gravity_factor = 0.05f; 
-
 		private float grav_acce_max;
 		private bool onGround = true;
 		private bool onObject = false;
 
 		//floating effect 
+		[Tooltip("true if you want floating effect while not flying")]
 		public bool floating_effect = true;
+		[Tooltip("amplitude of floating")]
 		public float floating_factor = 0.003f; //amplitude of floating
+		[Tooltip("intensity of floating")]
 		public float floating_intensity = 1.0f; //floating frequency
 
 		private Vector3 floating_temp_pos = new Vector3(0,0,0);
@@ -60,7 +71,22 @@ namespace VRTK{
 			GetComponent<VRTK_ControllerEvents> ().TriggerPressed += new ControllerInteractionEventHandler (DoTriggerPressed);
 			GetComponent<VRTK_ControllerEvents> ().TriggerReleased += new ControllerInteractionEventHandler (DoTriggerReleased);
 
-
+			if (UseSimulator) {
+				CameraRig = GameObject.Find ("[VRTK_SDKManager]/SDKSetups/Simulator/VRSimulatorCameraRig");
+				if (isThisLeftHand) {
+					Pointing_hand = GameObject.Find ("[VRTK_SDKManager]/SDKSetups/Simulator/VRSimulatorCameraRig/LeftHand");
+				} else {
+					Pointing_hand = GameObject.Find ("[VRTK_SDKManager]/SDKSetups/Simulator/VRSimulatorCameraRig/RightHand");
+				}
+			} else {
+				CameraRig = GameObject.Find ("[VRTK_SDKManager]/SDKSetups/SteamVR/[CameraRig]");
+				if (isThisLeftHand) {
+					Pointing_hand = GameObject.Find ("[VRTK_SDKManager]/SDKSetups/SteamVR/[CameraRig]/Controller (left)");
+				} else {
+					Pointing_hand = GameObject.Find ("[VRTK_SDKManager]/SDKSetups/SteamVR/[CameraRig]/Controller (right)");
+				}
+			}
+				
 			//
 			if (collision_detection) {
 				collision_detect = playarea.GetComponent<Collision_detect> ();

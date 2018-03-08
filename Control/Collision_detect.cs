@@ -9,8 +9,11 @@ namespace VRTK{
 
 	public class Collision_detect : MonoBehaviour {
 
+		[Tooltip("don't need to touch, for read by controller fly script")]
 		public bool colliding = false; //don't need to touch, for read by controller fly script
+		[Tooltip("not used, for debug use")]
 		public Transform colliding_point; //not used, for debug use
+		[Tooltip("determines the size of the collider")]
 		public float userHeight = 1.6f; //determines the size of the collider
 
 		// Use this for initialization
