@@ -10,11 +10,13 @@ VRTK plugin 3.2
 
 2. On your controller script alias, choose if you are using "simulator or not", and choose if you are using "lefthand or not".
 
-3. Link PlayArea script alias object to the script.
+3. Link SteamVR CameraRig object and VRSimulatorCameraRig object to your controller_fly script.
 
-4. On your PlayArea script alias, attach Collision_detect.cs onto it.
+4. Link PlayArea script alias object to the script.
 
-5. Add "VRTK_HeadsetCollision" script to PlayArea script alias.
+5. On your PlayArea script alias object, attach Collision_detect.cs onto it.
+
+6. Add "VRTK_HeadsetCollision" script to PlayArea script alias.
 
 #### Libraries Reference:
 [VRTK plugin](https://vrtoolkit.readme.io/)

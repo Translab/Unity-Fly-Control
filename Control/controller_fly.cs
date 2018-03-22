@@ -11,11 +11,15 @@ namespace VRTK{
 
 		//gameobject reference 
 		[Tooltip("Switch between Simulator and SteamVR CameraRigs")]
-		public bool UseSimulator = true;
+		public bool useSimulator = true;
 		[Tooltip("true if this script is on left hand, then your pointing hand is left controller, if on right hand then false")]
-		public bool ThisisLeftHand = true;
- 		private GameObject CameraRig;
-		private GameObject Pointing_hand; //link your controller here as your pointing reference, or use your headset as facing reference
+		public bool isThisLeftHand = true;
+		[Tooltip("link your steamVR CameraRig Object here")]
+ 		public GameObject SteamVRCameraRig;
+		[Tooltip("link your Simulator CameraRig Object here")]
+		public GameObject SimulatorCameraRig;
+		private GameObject CameraRig;
+		private GameObject Pointing_hand;
 
 		//flying param
 		[Tooltip("speed of fly")]
@@ -71,19 +75,21 @@ namespace VRTK{
 			GetComponent<VRTK_ControllerEvents> ().TriggerPressed += new ControllerInteractionEventHandler (DoTriggerPressed);
 			GetComponent<VRTK_ControllerEvents> ().TriggerReleased += new ControllerInteractionEventHandler (DoTriggerReleased);
 
-			if (UseSimulator) {
-				CameraRig = GameObject.Find ("[VRTK_SDKManager]/SDKSetups/Simulator/VRSimulatorCameraRig");
-				if (ThisisLeftHand) {
-					Pointing_hand = GameObject.Find ("[VRTK_SDKManager]/SDKSetups/Simulator/VRSimulatorCameraRig/LeftHand");
+			if (useSimulator) {
+				CameraRig = SimulatorCameraRig;
+
+				if (isThisLeftHand) {
+					Pointing_hand = CameraRig.transform.Find("LeftHand").gameObject;
 				} else {
-					Pointing_hand = GameObject.Find ("[VRTK_SDKManager]/SDKSetups/Simulator/VRSimulatorCameraRig/RightHand");
+					Pointing_hand = CameraRig.transform.Find("RightHand").gameObject;
 				}
 			} else {
-				CameraRig = GameObject.Find ("[VRTK_SDKManager]/SDKSetups/SteamVR/[CameraRig]");
-				if (ThisisLeftHand) {
-					Pointing_hand = GameObject.Find ("[VRTK_SDKManager]/SDKSetups/SteamVR/[CameraRig]/Controller (left)");
+				CameraRig = SteamVRCameraRig;
+				//CameraRig = GameObject.Find ("[VRTK_SDKManager]/SDKSetups/SteamVR/[CameraRig]");
+				if (isThisLeftHand) {
+					Pointing_hand = CameraRig.transform.Find("Controller (left)").gameObject;
 				} else {
-					Pointing_hand = GameObject.Find ("[VRTK_SDKManager]/SDKSetups/SteamVR/[CameraRig]/Controller (right)");
+					Pointing_hand = CameraRig.transform.Find("Controller (right)").gameObject;
 				}
 			}
 				
