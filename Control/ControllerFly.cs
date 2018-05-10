@@ -7,7 +7,7 @@ namespace VRTK{
 	using System.Collections.Generic;
 	using UnityEngine;
 
-	public class controller_fly : MonoBehaviour{
+	public class ControllerFly : MonoBehaviour{
 
 		//gameobject reference 
 		[Tooltip("Switch between Simulator and SteamVR CameraRigs")]
@@ -31,6 +31,7 @@ namespace VRTK{
 		private float fly_acce_max = 0.2f;
 		private float speed_compensation = 0.1f;
 		private bool flying = false;
+		private float trigger_pressure = 0.0f;
 
 		//Collision Detect
 		[Tooltip("link your playarea object here, drag and drop from your Hierarchy list into this blank")]
@@ -38,7 +39,7 @@ namespace VRTK{
 		[Tooltip("if true, you need to have 'collision_detect' script and also 'VRTK_HeadsetCollision' script attached to PlayArea")]
 		public bool collision_detection = true; //need to add a "VRTK_HeadsetCollision" script in your playarea object
 
-		private Collision_detect collision_detect;
+		private CollisionDetect collision_detect;
 		private Vector3 bodyPositionColliding; //temporal vector3 to record the body position of the colliding moment
 		private bool departureFromLanding = false; 
 
@@ -72,8 +73,11 @@ namespace VRTK{
 		private Vector3 floating_temp_pos = new Vector3(0,0,0);
 
 		void Start(){
-			GetComponent<VRTK_ControllerEvents> ().TriggerPressed += new ControllerInteractionEventHandler (DoTriggerPressed);
-			GetComponent<VRTK_ControllerEvents> ().TriggerReleased += new ControllerInteractionEventHandler (DoTriggerReleased);
+			//GetComponent<VRTK_ControllerEvents> ().TriggerPressed += new ControllerInteractionEventHandler (DoTriggerPressed);
+			//GetComponent<VRTK_ControllerEvents> ().TriggerReleased += new ControllerInteractionEventHandler (DoTriggerReleased);
+			GetComponent<VRTK_ControllerEvents>().TriggerAxisChanged += new ControllerInteractionEventHandler(DoTriggerAxisChanged);
+			GetComponent<VRTK_ControllerEvents>().TriggerTouchStart += new ControllerInteractionEventHandler(DoTriggerTouchStart);
+			GetComponent<VRTK_ControllerEvents>().TriggerTouchEnd += new ControllerInteractionEventHandler(DoTriggerTouchEnd);
 
 			if (useSimulator) {
 				CameraRig = SimulatorCameraRig;
@@ -95,13 +99,14 @@ namespace VRTK{
 				
 			//
 			if (collision_detection) {
-				collision_detect = playarea.GetComponent<Collision_detect> ();
+				collision_detect = playarea.GetComponent<CollisionDetect> ();
 			}
 			grav_acce_max = fly_speed * 0.1f * gravity_factor;
 		}
 
 
 		void Update(){
+			//Debug.Log (trigger_pressure);
 			facing_direction = Pointing_hand.transform.rotation * Vector3.forward;
 			reference_distance = Mathf.Abs(CameraRig.transform.position.y - landing_height);
 
@@ -134,7 +139,7 @@ namespace VRTK{
 				if (fly_acceleration.magnitude > fly_acce_max) {
 					fly_acceleration = Vector3.ClampMagnitude (fly_acceleration, fly_acce_max);
 				}
-				fly_velocity += fly_acceleration * fly_speed * speed_compensation;
+				fly_velocity += fly_acceleration * fly_speed * speed_compensation * trigger_pressure;
 				CameraRig.transform.position += fly_velocity;
 
 				if (onObject) {
@@ -183,23 +188,35 @@ namespace VRTK{
 				}
 			}
 		}
-
 		private void DebugLogger(uint index, string button, string action, ControllerInteractionEventArgs e)
 		{
 			VRTK_Logger.Info("Controller on index '" + index + "' " + button + " has been " + action
 				+ " with a pressure of " + e.buttonPressure + " / trackpad axis at: " + e.touchpadAxis + " (" + e.touchpadAngle + " degrees)");
 		}
-
-		private void DoTriggerPressed(object sender, ControllerInteractionEventArgs e){
 			
-			flying = true;
-			//DebugLogger(VRTK_ControllerReference.GetRealIndex(e.controllerReference), "TRIGGER", "pressed", e);
+		private void DoTriggerTouchStart(object sender, ControllerInteractionEventArgs e)
+		{
+			//flying = true;
+			//trigger_pressure = e.buttonPressure;
 		}
 
-		private void DoTriggerReleased(object sender, ControllerInteractionEventArgs e)
+		private void DoTriggerTouchEnd(object sender, ControllerInteractionEventArgs e)
 		{
-			flying = false;
-			//DebugLogger(VRTK_ControllerReference.GetRealIndex(e.controllerReference), "TRIGGER", "released", e);
+			//DebugLogger(VRTK_ControllerReference.GetRealIndex(e.controllerReference), "TRIGGER", "untouched", e);
+			//flying = false;
+			//trigger_pressure = 0.0f;
+
+		}
+
+		private void DoTriggerAxisChanged(object sender, ControllerInteractionEventArgs e)
+		{
+			trigger_pressure = Mathf.Pow(e.buttonPressure, 2);
+			if (trigger_pressure > 0){
+				flying = true;
+			} else if (trigger_pressure ==0 ){
+				flying = false;
+			}
+			//DebugLogger(VRTK_ControllerReference.GetRealIndex(e.controllerReference), "TRIGGER", "axis changed", e);
 		}
 	}
 }
